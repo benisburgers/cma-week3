@@ -103,6 +103,15 @@ caro_moving <- caro %>%
   filter(static == FALSE)
 caro_moving
 ```
+## Task 3: Visualize segmented trajectories
+
+```{r}
+caro %>%
+  ggplot(mapping = aes(x = E, y = N)) +
+  geom_path() +
+  geom_point(mapping = aes(color = static)) +
+  coord_equal()
+```
 
 
 
