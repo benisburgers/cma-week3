@@ -112,6 +112,61 @@ caro %>%
   geom_point(mapping = aes(color = static)) +
   coord_equal()
 ```
+## Task 4: Segment-based analysis
+```{r, warning=FALSE}
+# No idea how this works:
+rle_id <- function(vec){
+  x <- rle(vec)$lengths
+  as.factor(rep(seq_along(x), times=x))
+}
 
+caro <- caro %>%
+  mutate(segment_id = rle_id(static))
+caro
 
+# IMO: A segment is done when the next begins, as such get access to the next data points time.
+caro <- caro %>%
+  mutate(nextDatetimeUTC = lead(DatetimeUTC, 1))
 
+# Calculate segment duration by using the start_time of each segment and getting the next segment's start time
+# I.e. one segment ends when the next one begins
+segment_duration <- caro %>%
+  group_by(segment_id) %>%
+  summarise(start = min(DatetimeUTC),
+            end = max(nextDatetimeUTC)) %>%
+  mutate(duration_m = as.numeric(difftime(end, start)))
+segment_duration
+
+# Add segment_duration to caro
+caro <- caro %>%
+  left_join(segment_duration, by = "segment_id")
+
+# Create a convenience variable whether a segment is longer or equal to 5 minutes
+caro <- caro %>%
+  mutate(segment_duration_5 = ifelse(duration_m >= 5, TRUE, FALSE))
+caro
+
+# Plot all segments that are not static
+plot_all <- caro %>%
+filter(static == FALSE) %>%
+ggplot(mapping = aes(x = E, y = N, color = segment_id)) +
+geom_path() +
+geom_point() +
+theme(legend.position = "bottom")
+plot_all
+
+# Plot all segments that are not static AND that are longer or equal to 5 minutes
+plot_longer_than_5_minutes <- caro %>%
+filter(static == FALSE) %>%
+filter(segment_duration_5 == TRUE) %>%
+ggplot(mapping = aes(x = E, y = N, color = segment_id)) +
+geom_path() +
+geom_point() +
+theme(legend.position = "bottom")
+plot_longer_than_5_minutes
+
+# Combine these plots
+plot_grid(plot_all, plot_longer_than_5_minutes)
+
+```
+Hey there! I'm not sure that I agree with your example in the exercise. For examle, segment 16 starts at 2015-09-15 11:19:00 and ends at 2015-09-15 11:25:00 when segment 17 begins. In my opinion that makes more sense, because a segment that has only 1 step (e.g. Segment 1) still has to be at least 1 minute long. And even if you don't agree with me, then segmend 16 would end at 2015-09-15 11:24:00, still making it 5 minutes long. Thereby we would have to show it. But maybe my calculations are also wrong somewhere.
