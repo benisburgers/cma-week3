@@ -189,4 +189,131 @@ pedastrian %>%
   geom_path() +
   facet_wrap(~as.factor(TrajID))
 ```
+## Task 6: Calculate similarity
+
+### Install packages and read about them
+
+```{r, warning=FALSE}
+library(SimilarityMeasures)
+help(package = "SimilarityMeasures")
+
+# Matrix 1
+
+pedastrian1 <- 
+  pedastrian %>%
+  filter(TrajID == 1) %>%
+  select(N, E)
+pedastrian1
+
+pedastrian1_matrix <- matrix(c(pedastrian1$E, pedastrian1$N), ncol = 2)
+pedastrian1_matrix
+
+# Matrix 2
+
+pedastrian2 <- 
+  pedastrian %>%
+  filter(TrajID == 2) %>%
+  select(N, E)
+pedastrian2
+
+pedastrian2_matrix <- matrix(c(pedastrian2$E, pedastrian2$N), ncol = 2)
+pedastrian2_matrix
+
+# Matrix 3
+
+pedastrian3 <- 
+  pedastrian %>%
+  filter(TrajID == 3) %>%
+  select(N, E)
+pedastrian3
+
+pedastrian3_matrix <- matrix(c(pedastrian3$E, pedastrian3$N), ncol = 2)
+pedastrian3_matrix
+
+# Matrix 4
+
+pedastrian4 <- 
+  pedastrian %>%
+  filter(TrajID == 4) %>%
+  select(N, E)
+pedastrian4
+
+pedastrian4_matrix <- matrix(c(pedastrian4$E, pedastrian4$N), ncol = 2)
+pedastrian4_matrix
+
+# Matrix 5
+
+pedastrian5 <- 
+  pedastrian %>%
+  filter(TrajID == 5) %>%
+  select(N, E)
+pedastrian5
+
+pedastrian5_matrix <- matrix(c(pedastrian5$E, pedastrian5$N), ncol = 2)
+pedastrian5_matrix
+
+# Matrix 6
+
+pedastrian6 <- 
+  pedastrian %>%
+  filter(TrajID == 6) %>%
+  select(N, E)
+pedastrian6
+
+pedastrian6_matrix <- matrix(c(pedastrian6$E, pedastrian6$N), ncol = 2)
+pedastrian6_matrix
+
+# Calculating the trajectory similarities for each 1:n pair and with every method
+
+DTW <- c()
+DTW[1] <- DTW(pedastrian1_matrix, pedastrian2_matrix)
+DTW[2] <- DTW(pedastrian1_matrix, pedastrian3_matrix)
+DTW[3] <- DTW(pedastrian1_matrix, pedastrian4_matrix)
+DTW[4] <- DTW(pedastrian1_matrix, pedastrian5_matrix)
+DTW[5] <- DTW(pedastrian1_matrix, pedastrian6_matrix)
+DTW
+
+EditDist <- c()
+EditDist[1] <- EditDist(pedastrian1_matrix, pedastrian2_matrix)
+EditDist[2] <- EditDist(pedastrian1_matrix, pedastrian3_matrix)
+EditDist[3] <- EditDist(pedastrian1_matrix, pedastrian4_matrix)
+EditDist[4] <- EditDist(pedastrian1_matrix, pedastrian5_matrix)
+EditDist[5] <- EditDist(pedastrian1_matrix, pedastrian6_matrix)
+EditDist
+
+Frechet <- c()
+Frechet[1] <- Frechet(pedastrian1_matrix, pedastrian2_matrix)
+Frechet[2] <- Frechet(pedastrian1_matrix, pedastrian3_matrix)
+Frechet[3] <- Frechet(pedastrian1_matrix, pedastrian4_matrix)
+Frechet[4] <- Frechet(pedastrian1_matrix, pedastrian5_matrix)
+Frechet[5] <- Frechet(pedastrian1_matrix, pedastrian6_matrix)
+Frechet
+
+LCSS <- c()
+LCSS[1] <- LCSS(pedastrian1_matrix, pedastrian2_matrix, 2, 2, 0.5)
+LCSS[2] <- LCSS(pedastrian1_matrix, pedastrian3_matrix, 2, 2, 0.5)
+LCSS[3] <- LCSS(pedastrian1_matrix, pedastrian4_matrix, 2, 2, 0.5)
+LCSS[4] <- LCSS(pedastrian1_matrix, pedastrian5_matrix, 2, 2, 0.5)
+LCSS[5] <- LCSS(pedastrian1_matrix, pedastrian6_matrix, 2, 2, 0.5)
+LCSS
+
+# Putting those results together in order to visualize them easier (wasn't easier)
+
+results <- tibble(DTW, EditDist, Frechet, path = c(2, 3, 4, 5, 6))
+results
+
+results_long <- results %>% pivot_longer(names_to = "name", values_to = "value", -path)
+results_long
+
+results_long %>%
+  ggplot() +
+  geom_col(mapping = aes(x = path, y = value)) +
+  facet_wrap(~name)
+
+DTW_plot <- results_long %>%
+  filter(name == "DTW") %>%
+  ggplot() +
+  geom_col(mapping = aes(x = path, y = value))
+DTW_plot
+```
 
