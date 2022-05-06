@@ -1,0 +1,108 @@
+---
+title: "Week 3 Exercises"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+# Tasks and Inputs
+
+## Task 1: Segmentation
+
+### Install libraries
+
+```{r warning = FALSE, message = FALSE}
+library(tidyverse)
+```
+
+### Import Data
+
+```{r}
+caro <- read_delim('caro60.csv')
+caro
+```
+
+### Custom-Segment the Data
+
+```{r}
+caro <- caro %>%
+  mutate(
+    nMinus3 = sqrt((lag(E,3)-E)^2+(lag(N,3)-N)^2),   # distance to pos -3 minutes
+    nMinus2 = sqrt((lag(E,2)-E)^2+(lag(N,2)-N)^2),   # distance to pos -2 minutes
+    nMinus1 = sqrt((lag(E,1)-E)^2+(lag(N,1)-N)^2),   # distance to pos -1 minutes
+    nPlus1  = sqrt((E-lead(E,1))^2+(N-lead(N,1))^2), # distance to pos +1 mintues
+    nPlus2  = sqrt((E-lead(E,2))^2+(N-lead(N,2))^2), # distance to pos +2 minutes
+    nPlus3  = sqrt((E-lead(E,3))^2+(N-lead(N,3))^2)  # distance to pos +3 minutes
+  )
+caro
+```
+
+## Task 2: Specify and apply threshold *d*
+
+### Exploring the distances between positions
+
+```{r, warning=FALSE}
+caro %>%
+ggplot() +
+  geom_histogram(mapping = aes(x = nMinus3))
+
+caro %>%
+ggplot() +
+  geom_histogram(mapping = aes(x = nMinus2))
+```
+
+### Calculating the mean distance for every row
+
+```{r}
+caro <- caro %>%
+  rowwise() %>%
+  mutate(
+    stepMean = mean(c(nMinus3, nMinus2, nMinus1, nPlus1, nPlus2, nPlus3))
+  ) %>%
+  ungroup()
+
+caro
+```
+
+### Exploring the mean distances between positions
+
+```{r}
+caro %>%
+  ggplot() +
+  geom_histogram(mapping = aes(x = stepMean))
+
+caro %>%
+  ggplot() +
+  geom_histogram(mapping = aes(x = stepMean)) +
+  xlim(0, 10)
+```
+### Removing 'static' points
+
+```{r}
+# Static = Check whether the row step mean is lower than the overall steapMean average
+caro <- caro %>%
+    mutate(static = stepMean < mean(stepMean, na.rm = TRUE))
+caro
+
+# Moving = Only the points where the row average is larger than the overall average
+caro_moving <- caro %>%
+  filter(static == FALSE)
+caro_moving
+```
+
+
+
