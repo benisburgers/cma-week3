@@ -5,20 +5,6 @@ editor_options:
   chunk_output_type: inline
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
-
-```{r}
-plot(cars)
-```
-
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
-
 # Tasks and Inputs
 
 ## Task 1: Segmentation
@@ -27,6 +13,7 @@ The preview shows you a rendered HTML copy of the contents of the editor. Conseq
 
 ```{r warning = FALSE, message = FALSE}
 library(tidyverse)
+library(cowplot)
 ```
 
 ### Import Data
@@ -196,7 +183,11 @@ pedastrian %>%
 ```{r, warning=FALSE}
 library(SimilarityMeasures)
 help(package = "SimilarityMeasures")
+```
 
+### Create trajectory matrixes for every pedastrian
+
+```{r, warning=FALSE}
 # Matrix 1
 
 pedastrian1 <- 
@@ -263,8 +254,12 @@ pedastrian6
 pedastrian6_matrix <- matrix(c(pedastrian6$E, pedastrian6$N), ncol = 2)
 pedastrian6_matrix
 
-# Calculating the trajectory similarities for each 1:n pair and with every method
+```
 
+
+### Calculate the trajectory similarities for each 1:n pair and with every method
+
+```{r, warning=FALSE}
 DTW <- c()
 DTW[1] <- DTW(pedastrian1_matrix, pedastrian2_matrix)
 DTW[2] <- DTW(pedastrian1_matrix, pedastrian3_matrix)
@@ -296,10 +291,13 @@ LCSS[3] <- LCSS(pedastrian1_matrix, pedastrian4_matrix, 2, 2, 0.5)
 LCSS[4] <- LCSS(pedastrian1_matrix, pedastrian5_matrix, 2, 2, 0.5)
 LCSS[5] <- LCSS(pedastrian1_matrix, pedastrian6_matrix, 2, 2, 0.5)
 LCSS
+```
 
-# Putting those results together in order to visualize them easier (wasn't easier)
+# Visualizing the results from the simliarity measures
 
-results <- tibble(DTW, EditDist, Frechet, path = c(2, 3, 4, 5, 6))
+```{r, warning=FALSE}
+
+results <- tibble(DTW, EditDist, Frechet, path = as.factor(c(2, 3, 4, 5, 6)))
 results
 
 results_long <- results %>% pivot_longer(names_to = "name", values_to = "value", -path)
@@ -313,7 +311,29 @@ results_long %>%
 DTW_plot <- results_long %>%
   filter(name == "DTW") %>%
   ggplot() +
-  geom_col(mapping = aes(x = path, y = value))
+  geom_col(mapping = aes(x = path, y = value, fill = path))
 DTW_plot
+
+EditDist_plot <- results_long %>%
+  filter(name == "EditDist") %>%
+  ggplot() +
+  geom_col(mapping = aes(x = path, y = value, fill = path))
+EditDist_plot
+
+FrechetDist_plot <- results_long %>%
+  filter(name == "FrechetDist") %>%
+  ggplot() +
+  geom_col(mapping = aes(x = path, y = value, fill = path))
+FrechetDist_plot
+
+LCSS_plot <- results_long %>%
+  filter(name == "LCSS") %>%
+  ggplot() +
+  geom_col(mapping = aes(x = path, y = value, fill = path))
+LCSS_plot
+
+plot_grid(DTW_plot, EditDist_plot, FrechetDist_plot, LCSS_plot)
+
 ```
+Why on earth do my plots look so much different than the ones provided by the examples?
 
