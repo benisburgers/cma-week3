@@ -1,7 +1,9 @@
 ---
 title: "Week 3 Exercises"
-output: html_notebook
-editor_options: 
+output:
+  html_document:
+    df_print: paged
+editor_options:
   chunk_output_type: inline
 ---
 
@@ -156,6 +158,7 @@ plot_longer_than_5_minutes
 plot_grid(plot_all, plot_longer_than_5_minutes)
 
 ```
+
 Hey there! I'm not sure that I agree with your example in the exercise. For examle, segment 16 starts at 2015-09-15 11:19:00 and ends at 2015-09-15 11:25:00 when segment 17 begins. In my opinion that makes more sense, because a segment that has only 1 step (e.g. Segment 1) still has to be at least 1 minute long. And even if you don't agree with me, then segmend 16 would end at 2015-09-15 11:24:00, still making it 5 minutes long. Thereby we would have to show it. But maybe my calculations are also wrong somewhere.
 
 ## Task 5: Similarity measures
@@ -335,5 +338,6 @@ LCSS_plot
 plot_grid(DTW_plot, EditDist_plot, Frechet_plot, LCSS_plot)
 
 ```
-Why on earth do my plots look so much different than the ones provided by the examples?
+
+Why do my plots look so much different than the ones provided by the examples?
 
