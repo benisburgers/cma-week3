@@ -261,27 +261,27 @@ pedastrian6_matrix
 
 ```{r, warning=FALSE}
 DTW <- c()
-DTW[1] <- DTW(pedastrian1_matrix, pedastrian2_matrix)
-DTW[2] <- DTW(pedastrian1_matrix, pedastrian3_matrix)
-DTW[3] <- DTW(pedastrian1_matrix, pedastrian4_matrix)
-DTW[4] <- DTW(pedastrian1_matrix, pedastrian5_matrix)
-DTW[5] <- DTW(pedastrian1_matrix, pedastrian6_matrix)
+DTW[1] <- DTW(pedastrian1_matrix, pedastrian2_matrix, pointSpacing = 4)
+DTW[2] <- DTW(pedastrian1_matrix, pedastrian3_matrix, pointSpacing = 4)
+DTW[3] <- DTW(pedastrian1_matrix, pedastrian4_matrix, pointSpacing = 4)
+DTW[4] <- DTW(pedastrian1_matrix, pedastrian5_matrix, pointSpacing = 4)
+DTW[5] <- DTW(pedastrian1_matrix, pedastrian6_matrix, pointSpacing = 4)
 DTW
 
 EditDist <- c()
-EditDist[1] <- EditDist(pedastrian1_matrix, pedastrian2_matrix)
-EditDist[2] <- EditDist(pedastrian1_matrix, pedastrian3_matrix)
-EditDist[3] <- EditDist(pedastrian1_matrix, pedastrian4_matrix)
-EditDist[4] <- EditDist(pedastrian1_matrix, pedastrian5_matrix)
-EditDist[5] <- EditDist(pedastrian1_matrix, pedastrian6_matrix)
+EditDist[1] <- EditDist(pedastrian1_matrix, pedastrian2_matrix, pointDistance = 4)
+EditDist[2] <- EditDist(pedastrian1_matrix, pedastrian3_matrix, pointDistance = 4)
+EditDist[3] <- EditDist(pedastrian1_matrix, pedastrian4_matrix, pointDistance = 4)
+EditDist[4] <- EditDist(pedastrian1_matrix, pedastrian5_matrix, pointDistance = 4)
+EditDist[5] <- EditDist(pedastrian1_matrix, pedastrian6_matrix, pointDistance = 4)
 EditDist
 
 Frechet <- c()
-Frechet[1] <- Frechet(pedastrian1_matrix, pedastrian2_matrix)
-Frechet[2] <- Frechet(pedastrian1_matrix, pedastrian3_matrix)
-Frechet[3] <- Frechet(pedastrian1_matrix, pedastrian4_matrix)
-Frechet[4] <- Frechet(pedastrian1_matrix, pedastrian5_matrix)
-Frechet[5] <- Frechet(pedastrian1_matrix, pedastrian6_matrix)
+Frechet[1] <- Frechet(pedastrian1_matrix, pedastrian2_matrix, testLeash = -1)
+Frechet[2] <- Frechet(pedastrian1_matrix, pedastrian3_matrix, testLeash = -1)
+Frechet[3] <- Frechet(pedastrian1_matrix, pedastrian4_matrix, testLeash = -1)
+Frechet[4] <- Frechet(pedastrian1_matrix, pedastrian5_matrix, testLeash = -1)
+Frechet[5] <- Frechet(pedastrian1_matrix, pedastrian6_matrix, testLeash = -1)
 Frechet
 
 LCSS <- c()
@@ -297,7 +297,7 @@ LCSS
 
 ```{r, warning=FALSE}
 
-results <- tibble(DTW, EditDist, Frechet, path = as.factor(c(2, 3, 4, 5, 6)))
+results <- tibble(DTW, EditDist, Frechet, LCSS, path = as.factor(c(2, 3, 4, 5, 6)))
 results
 
 results_long <- results %>% pivot_longer(names_to = "name", values_to = "value", -path)
@@ -320,11 +320,11 @@ EditDist_plot <- results_long %>%
   geom_col(mapping = aes(x = path, y = value, fill = path))
 EditDist_plot
 
-FrechetDist_plot <- results_long %>%
-  filter(name == "FrechetDist") %>%
+Frechet_plot <- results_long %>%
+  filter(name == "Frechet") %>%
   ggplot() +
   geom_col(mapping = aes(x = path, y = value, fill = path))
-FrechetDist_plot
+Frechet_plot
 
 LCSS_plot <- results_long %>%
   filter(name == "LCSS") %>%
@@ -332,7 +332,7 @@ LCSS_plot <- results_long %>%
   geom_col(mapping = aes(x = path, y = value, fill = path))
 LCSS_plot
 
-plot_grid(DTW_plot, EditDist_plot, FrechetDist_plot, LCSS_plot)
+plot_grid(DTW_plot, EditDist_plot, Frechet_plot, LCSS_plot)
 
 ```
 Why on earth do my plots look so much different than the ones provided by the examples?
